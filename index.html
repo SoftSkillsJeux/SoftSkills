@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-évaluation Soft Skills</title>
+    <style>
+        :root { --primary: #4F46E5; --bg: #F3F4F6; --card: #FFFFFF; --text: #1F2937; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .container { max-width: 480px; margin: 0 auto; background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        h1 { font-size: 1.3rem; color: var(--primary); margin-top: 0; text-align: center; }
+        .intro { font-size: 0.9rem; color: #4B5563; text-align: center; margin-bottom: 20px; line-height: 1.4; }
+        .question-box { margin-bottom: 18px; background: #F9FAFB; padding: 12px; border-radius: 10px; border: 1px solid #E5E7EB; }
+        .question-title { font-size: 0.95rem; margin: 0 0 10px 0; font-weight: 600; }
+        .options { display: flex; justify-content: space-between; gap: 6px; }
+        .options label { flex: 1; text-align: center; background: white; padding: 10px 0; border-radius: 8px; border: 1px solid #D1D5DB; font-weight: bold; cursor: pointer; }
+        .options input { display: none; }
+        .options label:has(input:checked) { border-color: var(--primary); background: #EEF2FF; color: var(--primary); }
+        button { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #results { display: none; text-align: center; }
+        .score-box { background: #EEF2FF; border-radius: 12px; padding: 20px; margin: 20px 0; }
+        .score-val { font-size: 2.8rem; font-weight: 800; color: var(--primary); }
+        .interpretation { font-size: 0.95rem; line-height: 1.5; padding: 12px; border-radius: 8px; margin-top: 15px; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ÉCRAN QUESTIONNAIRE -->
+    <div id="quiz-step">
+        <h1 id="skill-title">Titre Soft Skill</h1>
+        <p class="intro" id="skill-intro">Introduction...</p>
+        
+        <form id="quiz-form">
+            <div id="questions-container"></div>
+            <button type="submit">Voir mon résultat</button>
+        </form>
+    </div>
+
+    <!-- ÉCRAN RÉSULTAT -->
+    <div id="results">
+        <h1 id="res-title">Bilan</h1>
+        <div class="score-box">
+            <div style="font-size:0.9rem; color:#4B5563;">Votre score :</div>
+            <div class="score-val"><span id="score-num">0</span> / 25</div>
+        </div>
+        <div id="interpretation-box" class="interpretation"></div>
+        <p style="font-size: 0.8rem; color: #9CA3AF; margin-top: 20px;">📸 Prenez une capture d'écran pour conserver votre résultat !</p>
+    </div>
+</div>
+
+<script>
+// --- DONNÉES DES 12 SOFT SKILLS ---
+const SOFT_SKILLS = [
+    {
+        id: 1,
+        title: "1. Communication Assertive",
+        intro: "Évaluez votre capacité à exprimer vos idées et vos besoins clairement, tout en respectant ceux des autres.",
+        questions: [
+            "J'exprime mon point de vue même en cas de désaccord.",
+            "Je sais dire 'non' de manière professionnelle et posée.",
+            "J'écoute sans interrompre mon interlocuteur.",
+            "J'adapte mon discours en fonction de mon public.",
+            "Je demande des clarifications si une consigne est floue."
+        ]
+    },
+    {
+        id: 2,
+        title: "2. Gestion du Stress",
+        intro: "Évaluez votre capacité à garder votre efficacité et votre calme face à l'imprévu ou à la pression.",
+        questions: [
+            "Je reste lucide lorsque les délais sont serrés.",
+            "Je trouve des solutions concrètes face à un imprévu.",
+            "Je sais prendre du recul émotionnel sur une situation.",
+            "Je connais mes limites et je sais faire des pauses.",
+            "Je ne laisse pas une remarque impacter mon travail."
+        ]
+    }
+    // Tu pourras ajouter ici les compétences 3 à 12 sur le même modèle !
+];
+
+// --- LOGIQUE DU SCRIPT ---
+const urlParams = new URLSearchParams(window.location.search);
+const skillId = parseInt(urlParams.get('id')) || 1;
+const currentSkill = SOFT_SKILLS.find(s => s.id === skillId) || SOFT_SKILLS[0];
+
+document.getElementById('skill-title').innerText = currentSkill.title;
+document.getElementById('skill-intro').innerText = currentSkill.intro;
+
+const container = document.getElementById('questions-container');
+currentSkill.questions.forEach((qText, index) => {
+    container.innerHTML += `
+        <div class="question-box">
+            <p class="question-title">${index + 1}. ${qText}</p>
+            <div class="options">
+                ${[1, 2, 3, 4, 5].map(v => `
+                    <label>
+                        <input type="radio" name="q${index}" value="${v}" required>
+                        <span>${v}</span>
+                    </label>
+                `).join('')}
+            </div>
+        </div>
+    `;
+});
+
+document.getElementById('quiz-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    let score = 0;
+    for (let value of formData.values()) { score += parseInt(value); }
+
+    document.getElementById('quiz-step').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('res-title').innerText = currentSkill.title;
+    document.getElementById('score-num').innerText = score;
+
+    const interpBox = document.getElementById('interpretation-box');
+    if (score >= 20) {
+        interpBox.style.background = "#D1FAE5"; interpBox.style.color = "#065F46";
+        interpBox.innerHTML = "<strong>Point fort ancré (20 à 25) :</strong> Vous maîtrisez parfaitement cette compétence au quotidien. Continuez à la valoriser et à la partager !";
+    } else if (score >= 14) {
+        interpBox.style.background = "#FEF3C7"; interpBox.style.color = "#92400E";
+        interpBox.innerHTML = "<strong>Compétence en maîtrise (14 à 19) :</strong> Les bases sont solides, mais des ajustements sont possibles selon les situations. Identifiez vos pistes d'amélioration avec votre carte.";
+    } else {
+        interpBox.style.background = "#FEE2E2"; interpBox.style.color = "#991B1B";
+        interpBox.innerHTML = "<strong>Bel axe de progrès (5 à 13) :</strong> Cette compétence nécessite un développement ciblé. Utilisez les conseils de la carte pour faire progresser cette habileté.";
+    }
+});
+</script>
+</body>
+</html>
