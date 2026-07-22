@@ -8,10 +8,11 @@
         :root { --primary: #4F46E5; --bg: #F3F4F6; --card: #FFFFFF; --text: #1F2937; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
         .container { max-width: 480px; margin: 0 auto; background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-        h1 { font-size: 1.3rem; color: var(--primary); margin-top: 0; text-align: center; }
+        h1 { font-size: 1.3rem; color: var(--primary); margin-top: 0; text-align: center; text-transform: uppercase; }
         .intro { font-size: 0.9rem; color: #4B5563; text-align: center; margin-bottom: 20px; line-height: 1.4; }
         .question-box { margin-bottom: 18px; background: #F9FAFB; padding: 12px; border-radius: 10px; border: 1px solid #E5E7EB; }
-        .question-title { font-size: 0.95rem; margin: 0 0 10px 0; font-weight: 600; }
+        .question-title { font-size: 0.95rem; margin: 0 0 10px 0; font-weight: 600; line-height: 1.3; }
+        .scale-legend { display: flex; justify-content: space-between; font-size: 0.75rem; color: #6B7280; margin-bottom: 8px; font-weight: 500; }
         .options { display: flex; justify-content: space-between; gap: 6px; }
         .options label { flex: 1; text-align: center; background: white; padding: 10px 0; border-radius: 8px; border: 1px solid #D1D5DB; font-weight: bold; cursor: pointer; }
         .options input { display: none; }
@@ -20,7 +21,7 @@
         #results { display: none; text-align: center; }
         .score-box { background: #EEF2FF; border-radius: 12px; padding: 20px; margin: 20px 0; }
         .score-val { font-size: 2.8rem; font-weight: 800; color: var(--primary); }
-        .interpretation { font-size: 0.95rem; line-height: 1.5; padding: 12px; border-radius: 8px; margin-top: 15px; text-align: left; }
+        .interpretation { font-size: 0.95rem; line-height: 1.5; padding: 14px; border-radius: 10px; margin-top: 15px; text-align: left; }
     </style>
 </head>
 <body>
@@ -50,36 +51,154 @@
 </div>
 
 <script>
-// --- DONNÉES DES 12 SOFT SKILLS ---
 const SOFT_SKILLS = [
     {
         id: 1,
-        title: "1. Communication Assertive",
-        intro: "Évaluez votre capacité à exprimer vos idées et vos besoins clairement, tout en respectant ceux des autres.",
+        title: "01. La capacité à apprendre",
+        intro: "Apprendre est la capacité à acquérir de nouvelles connaissances et à transformer ses expériences en apprentissages. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
         questions: [
-            "J'exprime mon point de vue même en cas de désaccord.",
-            "Je sais dire 'non' de manière professionnelle et posée.",
-            "J'écoute sans interrompre mon interlocuteur.",
-            "J'adapte mon discours en fonction de mon public.",
-            "Je demande des clarifications si une consigne est floue."
+            "Est-ce que j’aime découvrir, expérimenter de nouvelles choses ?",
+            "Est-ce que je sais accepter la critique constructive ?",
+            "Est-ce que je sais reconnaître mes axes de progrès et d'amélioration ?",
+            "Est-ce que je prends le temps de tirer des enseignements de mes expériences, réussies ou non ?",
+            "Est-ce que je sais aller chercher par moi-même les ressources ou les personnes qui peuvent m'aider à progresser ?"
         ]
     },
     {
         id: 2,
-        title: "2. Gestion du Stress",
-        intro: "Évaluez votre capacité à garder votre efficacité et votre calme face à l'imprévu ou à la pression.",
+        title: "02. La communication",
+        intro: "La communication est la capacité à transmettre ses idées, écouter les autres et adapter son message selon les situations. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
         questions: [
-            "Je reste lucide lorsque les délais sont serrés.",
-            "Je trouve des solutions concrètes face à un imprévu.",
-            "Je sais prendre du recul émotionnel sur une situation.",
-            "Je connais mes limites et je sais faire des pauses.",
-            "Je ne laisse pas une remarque impacter mon travail."
+            "Est-ce que je sais exprimer des idées, un message clair ?",
+            "Est-ce que je sais argumenter, défendre, mon point de vue ?",
+            "Est-ce que je sais adapter ma communication en fonction des enjeux et des interlocuteurs ?",
+            "Est-ce que j’ose prendre la parole face à un groupe ?",
+            "Est-ce que j'écoute activement mon interlocuteur avant de répondre ?"
+        ]
+    },
+    {
+        id: 3,
+        title: "03. La collaboration et le travail en équipe",
+        intro: "La collaboration et le travail en équipe sont les capacités à travailler avec les autres de manière fluide et constructive. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce que je sais m’adapter à des personnes et des avis différents du mien dans le cadre d’un projet, d’un travail de groupe ?",
+            "Est-ce qu'en cas d'absence ou de surcharge d'un collègue, je propose mon aide ?",
+            "Est-ce que je tiens mes engagements et je partage les informations utiles avec le reste de l'équipe ?",
+            "Est-ce que je contribue activement à dynamiser un projet ou une activité de groupe ?",
+            "Est-ce que je sais gérer les désaccords au sein d'une équipe sans nuire à la cohésion du groupe ?"
+        ]
+    },
+    {
+        id: 4,
+        title: "04. L'organisation",
+        intro: "L’organisation est la capacité à planifier, prioriser et garder le cap. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce que je sais planifier des tâches sur une journée ?",
+            "Est-ce que je sais anticiper des actions récurrentes ?",
+            "Est-ce que je sais prioriser les tâches qui me sont confiées ?",
+            "Est-ce que je sais estimer le temps nécessaire à la réalisation d’une tâche pour respecter les délais qui me sont imposées ?",
+            "Est-ce que je sais réajuster mon organisation face à un imprévu sans perdre le fil de mes objectifs ?"
+        ]
+    },
+    {
+        id: 5,
+        title: "05. L'autonomie",
+        intro: "L’autonomie est la capacité à avancer seul.e et à prendre des initiatives. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce que je sais identifier les étapes et les objectifs d’une tâche ?",
+            "Est-ce que je sais identifier/Définir mon rôle et ma responsabilité lorsqu’une tâche m’est confiée ?",
+            "Est-ce que je suis capable de réaliser une tâche seule sans supervision ?",
+            "Est-ce que je sais proposer une solution, prendre des initiatives face à une problématique ?",
+            "Est-ce que je sais identifier les moments où j'ai besoin d'aide ou de valider mes choix, et solliciter la bonne personne au bon moment ?"
+        ]
+    },
+    {
+        id: 6,
+        title: "06. L'écoute",
+        intro: "L’écoute est la capacité à être attentif à ce que l’autre dit et ressent. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce que je suis capable de percevoir ce que ressent mon interlocuteur, au-delà de ce qu'il dit ?",
+            "Est-ce que je sais reformuler un message sans le déformer ?",
+            "Est-ce que je suis capable de ne pas interrompre mon interlocuteur tout en préservant mon idée ?",
+            "Est-ce que j’arrive à ne pas perdre le fil en condition d’écoute intense ?",
+            "Est-ce que je sais identifier les parasites de ma capacité à écouter longuement ?"
+        ]
+    },
+    {
+        id: 7,
+        title: "07. La gestion du stress",
+        intro: "La gestion du stress est la capacité à rester calme et efficace sous pression ou situation déstabilisante. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce que je sais reconnaître les signes (physiques, émotionnels) qui m'indiquent que je suis stressé.e ?",
+            "Est-ce que je reste efficace dans mes actions quand je suis stressé.e ?",
+            "Est-ce que je sais identifier les situations qui me stressent le plus ?",
+            "Est-ce que j'utilise des techniques ou outils pour gérer mon stress ?",
+            "Est-ce qu'en situation de stress je suis en capacité de demander de l'aide ?"
+        ]
+    },
+    {
+        id: 8,
+        title: "08. La gestion des conflits",
+        intro: "La gestion des conflits est la capacité à prévenir, gérer ou résoudre des désaccords de manière constructive tout en préservant les relations avec les autres. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce qu'en situation de conflit, je cherche avant tout à comprendre l'autre plutôt qu'à avoir raison ?",
+            "Est-ce que je sais rester calme face à une personne en colère ou mécontente ?",
+            "Est-ce que j'écoute les différents points de vue avant de me faire une opinion ?",
+            "Est-ce que je suis capable d'exprimer mon désaccord sans agresser l'autre ?",
+            "Est-ce que je cherche des solutions qui conviennent à toutes les parties ?"
+        ]
+    },
+    {
+        id: 9,
+        title: "09. L'adaptation",
+        intro: "L’adaptation est la capacité à ajuster son comportement et ses actions à une situation nouvelle. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce que je m’adapte facilement quand les règles ou le cadre changent ?",
+            "Est-ce que je vis l'imprévu comme une opportunité plutôt que comme un blocage ?",
+            "Est-ce que je suis capable de changer d'approche si ma solution initiale ne fonctionne pas ?",
+            "Est-ce que j'arrive à rebondir facilement face à un échec ?",
+            "Est-ce que je sais m'ajuster rapidement à un nouvel environnement (méthodes, outils, culture d'équipe) ?"
+        ]
+    },
+    {
+        id: 10,
+        title: "10. La fiabilité et la qualité du travail",
+        intro: "La fiabilité et la qualité du travail sont les capacités à s'appliquer dans son travail, à s'imposer des normes de qualité et à les respecter. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce que je vérifie le résultat de mon travail ?",
+            "Est-ce que je relis la consigne avant de commencer le projet ?",
+            "Est-ce que je connais les critères qualité de ma production ?",
+            "Est-ce que je respecte les délais que je me fixe ou qui me sont imposés ?",
+            "Est-ce que je suis les protocoles, vérifie les sources, la validité des informations ?"
+        ]
+    },
+    {
+        id: 11,
+        title: "11. La prise de recul",
+        intro: "La prise de recul est la capacité à analyser une situation objectivement sans affecte, la capacité à prendre du recul sur ses actions et à tirer des enseignements de ses expériences. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce que je prends le temps de réfléchir avant de réagir dans une situation difficile ?",
+            "Est-ce que je suis capable d'analyser ce qui a fonctionné ou non après une expérience ?",
+            "Est-ce que je suis capable de prendre du recul sur une situation en me mettant à la place d'un observateur extérieur ?",
+            "Est-ce que je sais distinguer les faits de mes émotions ou de mes opinions ?",
+            "Est-ce que je tire des leçons de mes réussites comme de mes erreurs ?"
+        ]
+    },
+    {
+        id: 12,
+        title: "12. La créativité",
+        intro: "La créativité est la capacité à trouver des idées nouvelles et originales et à envisager des solutions originales face à une situation donnée. Cette auto-évaluation vous permet d'identifier votre niveau actuel.",
+        questions: [
+            "Est-ce que je propose spontanément des idées nouvelles face à une situation ou un problème ?",
+            "Est-ce que je suis capable d'envisager plusieurs solutions différentes avant de choisir la plus pertinente ?",
+            "Est-ce que j'ose sortir des méthodes habituelles ou des solutions déjà connues ?",
+            "Est-ce que je sais m'inspirer d'idées ou de pratiques extérieures pour nourrir mes propositions ?",
+            "Est-ce que j'accepte de tester une idée même si elle comporte une part d'incertitude ou de risque ?"
         ]
     }
-    // Tu pourras ajouter ici les compétences 3 à 12 sur le même modèle !
 ];
 
-// --- LOGIQUE DU SCRIPT ---
+// INITIALISATION DE LA PAGE DYNAMIQUEMENT
 const urlParams = new URLSearchParams(window.location.search);
 const skillId = parseInt(urlParams.get('id')) || 1;
 const currentSkill = SOFT_SKILLS.find(s => s.id === skillId) || SOFT_SKILLS[0];
@@ -92,6 +211,10 @@ currentSkill.questions.forEach((qText, index) => {
     container.innerHTML += `
         <div class="question-box">
             <p class="question-title">${index + 1}. ${qText}</p>
+            <div class="scale-legend">
+                <span>1 = Jamais</span>
+                <span>5 = Toujours</span>
+            </div>
             <div class="options">
                 ${[1, 2, 3, 4, 5].map(v => `
                     <label>
@@ -104,6 +227,7 @@ currentSkill.questions.forEach((qText, index) => {
     `;
 });
 
+// GESTION DU CALCUL ET DES RÉSULTATS
 document.getElementById('quiz-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -116,15 +240,19 @@ document.getElementById('quiz-form').addEventListener('submit', (e) => {
     document.getElementById('score-num').innerText = score;
 
     const interpBox = document.getElementById('interpretation-box');
-    if (score >= 20) {
+    
+    if (score >= 21) {
         interpBox.style.background = "#D1FAE5"; interpBox.style.color = "#065F46";
-        interpBox.innerHTML = "<strong>Point fort ancré (20 à 25) :</strong> Vous maîtrisez parfaitement cette compétence au quotidien. Continuez à la valoriser et à la partager !";
-    } else if (score >= 14) {
+        interpBox.innerHTML = "<strong>Point fort ancré (21 à 25) :</strong> Vous maîtrisez parfaitement cette compétence au quotidien. Continuez à la valoriser, à l'ancrer et à la partager autour de vous !";
+    } else if (score >= 16) {
+        interpBox.style.background = "#E0E7FF"; interpBox.style.color = "#3730A3";
+        interpBox.innerHTML = "<strong>Compétence maîtrisée (16 à 20) :</strong> Les bases sont solides et l'application est fluide dans la plupart des contextes. Identifiez vos ajustements fins sur la carte pour atteindre l'excellence.";
+    } else if (score >= 11) {
         interpBox.style.background = "#FEF3C7"; interpBox.style.color = "#92400E";
-        interpBox.innerHTML = "<strong>Compétence en maîtrise (14 à 19) :</strong> Les bases sont solides, mais des ajustements sont possibles selon les situations. Identifiez vos pistes d'amélioration avec votre carte.";
+        interpBox.innerHTML = "<strong>Compétence en émergence (11 à 15) :</strong> Les premières bases apparaissent, mais l'application reste irrégulière selon les situations. Référez-vous à la carte et vos formations pour consolider vos réflexes au quotidien.";
     } else {
         interpBox.style.background = "#FEE2E2"; interpBox.style.color = "#991B1B";
-        interpBox.innerHTML = "<strong>Bel axe de progrès (5 à 13) :</strong> Cette compétence nécessite un développement ciblé. Utilisez les conseils de la carte pour faire progresser cette habileté.";
+        interpBox.innerHTML = "<strong>Axe de progrès prioritaire (5 à 10) :</strong> Cette compétence nécessite un développement ciblé et un accompagnement. Utilisez les conseils et exercices de la carte pour faire progresser cette compétence pas à pas.";
     }
 });
 </script>
