@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Associe les Outils aux Soft Skills</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 15px;
+      text-align: center;
+      background-color: #f4f6f9;
+      color: #333;
+    }
+    h2 {
+      color: #0969da;
+    }
+    p.instructions {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .game-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      padding: 12px 8px;
+      background-color: #ffffff;
+      border: 2px solid #d0d7de;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .card.selected {
+      border-color: #0969da;
+      background-color: #ddf4ff;
+    }
+    .card.matched {
+      border-color: #2da44e;
+      background-color: #dafbe1;
+      color: #1a7f37;
+      cursor: default;
+    }
+    .card.wrong {
+      border-color: #cf222e;
+      background-color: #ffebe9;
+    }
+    #message {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      min-height: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🧩 Associe les Outils aux Soft Skills</h2>
+  <p class="instructions">Clique sur un <strong>Outil</strong> à gauche, puis sur le <strong>Soft Skill</strong> correspondant à droite !</p>
+
+  <div class="game-container">
+    <div class="column" id="actions-col"></div>
+    <div class="column" id="skills-col"></div>
+  </div>
+
+  <div id="message"></div>
+
+  <script>
+    const pairs = [
+      { action: "La CNV (méthode de Marshall B. Rosenberg)", skill: "La communication" },
+      { action: "Gantt, Trello ou Notion", skill: "L'organisation" },
+      { action: "La cohérence cardiaque", skill: "La gestion du stress" },
+      { action: "Questionnement et reformulation", skill: "L'écoute active" },
+      { action: "La métacognition", skill: "L'apprentissage" }
+    ];
+
+    let selectedAction = null;
+    let selectedSkill = null;
+    let matchedCount = 0;
+
+    function shuffle(array) {
+      return array.slice().sort(() => Math.random() - 0.5);
+    }
+
+    function initGame() {
+      const actionsCol = document.getElementById('actions-col');
+      const skillsCol = document.getElementById('skills-col');
+
+      const shuffledActions = shuffle(pairs.map(p => p.action));
+      const shuffledSkills = shuffle(pairs.map(p => p.skill));
+
+      shuffledActions.forEach(actionText => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.textContent = actionText;
+        div.dataset.type = 'action';
+        div.dataset.value = actionText;
+        div.addEventListener('click', () => selectCard(div));
+        actionsCol.appendChild(div);
+      });
+
+      shuffledSkills.forEach(skillText => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.textContent = skillText;
+        div.dataset.type = 'skill';
+        div.dataset.value = skillText;
+        div.addEventListener('click', () => selectCard(div));
+        skillsCol.appendChild(div);
+      });
+    }
+
+    function selectCard(card) {
+      if (card.classList.contains('matched')) return;
+
+      if (card.dataset.type === 'action') {
+        if (selectedAction) selectedAction.classList.remove('selected');
+        selectedAction = card;
+        selectedAction.classList.add('selected');
+      } else {
+        if (selectedSkill) selectedSkill.classList.remove('selected');
+        selectedSkill = card;
+        selectedSkill.classList.add('selected');
+      }
+
+      if (selectedAction && selectedSkill) {
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      const actionVal = selectedAction.dataset.value;
+      const skillVal = selectedSkill.dataset.value;
+
+      const isCorrect = pairs.some(p => p.action === actionVal && p.skill === skillVal);
+
+      if (isCorrect) {
+        selectedAction.className = 'card matched';
+        selectedSkill.className = 'card matched';
+        selectedAction = null;
+        selectedSkill = null;
+        matchedCount++;
+
+        if (matchedCount === pairs.length) {
+          document.getElementById('message').textContent = "🎉 Bravo ! Tu as associé tous les outils !";
+          document.getElementById('message').style.color = "#2da44e";
+        }
+      } else {
+        selectedAction.classList.add('wrong');
+        selectedSkill.classList.add('wrong');
+        
+        const a = selectedAction;
+        const s = selectedSkill;
+        selectedAction = null;
+        selectedSkill = null;
+
+        setTimeout(() => {
+          a.classList.remove('selected', 'wrong');
+          s.classList.remove('selected', 'wrong');
+        }, 800);
+      }
+    }
+
+    initGame();
+  </script>
+</body>
+</html>
